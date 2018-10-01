@@ -27,13 +27,13 @@ class Player:
         self.board[2:self.board_size-2, :] = 0
 
 
-    def do_move(self, move):
+    def do_move(self, move, player):
         """Do the necessary book-keeping to keep track of the board position."""
         from_pos, to_pos = move
         self.board[from_pos] = 0
 
-        # We only get the other player's move as an argument.
-        self.board[to_pos] = self.other_player
+        # Which player's move was it?
+        self.board[to_pos] = player
 
 
     def next_move(self, move, capture):
@@ -47,7 +47,7 @@ class Player:
 
         # First of all, apply the move from the previous player.
         if move:
-            self.do_move(move)
+            self.do_move(move, self.other_player)
 
         capture_moves = []
         vert_moves = []
@@ -57,7 +57,6 @@ class Player:
                 if self.board[i, j] == self.player:
                     # It's our piece. Try to find if any capture move is possible.
                     from_pos = (i, j)
-                    print("from pos = ", from_pos, "piece = ", self.board[i, j])
                     for to_pos in self.get_capture_pos(from_pos):
                         capture_moves.append((from_pos, to_pos))
 
@@ -75,7 +74,7 @@ class Player:
             our_move = rnd.choice(vert_moves)
 
         # Before passing on the move, apply the move to our own board.
-        self.do_move(our_move)
+        self.do_move(our_move, self.player)
         return our_move
 
 
@@ -98,8 +97,6 @@ class Player:
         moves = []
         x, y = from_pos
         to_pos = (x + self.direction, y)
-
-        print(from_pos, to_pos)
 
         if self.within_bounds_pos( to_pos ) and self.board[ to_pos ] == 0: # if the target board position is empty.
             moves.append(to_pos)
