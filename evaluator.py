@@ -21,7 +21,7 @@ class Breakthrough:
         self.player = None      # The player whose turn it is now.
 
 
-    def alt_player(self):
+    def next_player(self):
         # The other player.
         return 3 - self.player
 
@@ -40,7 +40,7 @@ class Breakthrough:
                 raise InvalidMove("Invalid Move.!")
 
         else:
-            if self.is_pos_alt_player(to_pos) and self.is_legal_move_diag(from_pos, to_pos):
+            if self.is_pos_next_player(to_pos) and self.is_legal_move_diag(from_pos, to_pos):
                 return 2
             raise("Invalid Move!")
 
@@ -50,7 +50,7 @@ class Breakthrough:
         return self.board[pos] == 0
 
 
-    def is_pos_alt_player(self, pos):
+    def is_pos_next_player(self, pos):
         """Does this board position belong to the other player?"""
         return ( self.board[pos] != 0 ) and ( self.board[pos] != self.player )
 
@@ -89,7 +89,7 @@ class Breakthrough:
             # Diagonal move
 
             # Captured player
-            capture = alt_player(self.player)
+            capture = next_player(self.player)
             self.captured[capture - 1] += 1
 
         return self.game_ends(), capture
@@ -99,4 +99,3 @@ class Breakthrough:
         """If the game has ended, return the winner's id (1 or 2).
         If the game has ended in a draw, return 0. Otherwise, return None.
         """
-        pass
