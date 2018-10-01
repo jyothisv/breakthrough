@@ -44,6 +44,11 @@ class Player:
         #
         # Note that the strategy and the implementation are just for illustrative purposes.
         # Both are meant to be improved.
+
+        # First of all, apply the move from the previous player.
+        if move:
+            self.do_move(move)
+
         capture_moves = []
         vert_moves = []
 
@@ -61,9 +66,17 @@ class Player:
                         vert_moves.append((from_pos, to_pos))
 
         print("player = ", self.player, "capture_moves =", capture_moves, "vert_moves = ", vert_moves)
+
+        our_move = None
+
         if capture_moves:
-            return rnd.choice(capture_moves)
-        return rnd.choice(vert_moves)
+            our_move = rnd.choice(capture_moves)
+        else:
+            our_move = rnd.choice(vert_moves)
+
+        # Before passing on the move, apply the move to our own board.
+        self.do_move(our_move)
+        return our_move
 
 
     def get_capture_pos(self, from_pos):
