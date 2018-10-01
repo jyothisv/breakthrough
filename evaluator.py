@@ -11,22 +11,26 @@ class Breakthrough:
     def __init__(self, board_size=8):
         self.board = np.zeros((board_size, board_size))
 
-        self.board[:2, :] = 2
-        self.board[board_size-2:, :] = 1
-
         # store the board-size
         self.board_size = board_size
 
         # Player 1's direction is upwards (-1) and player 2's direction is downwards (+1)
         self.direction = [0, -1, 1]
 
-        print(self.board)
+
+    def reset(self):
+        # Reset the board.
+        self.board[:2, :] = 2
+        self.board[self.board_size-2:, :] = 1
+
+        self.board[2:self.board_size-2, :] = 0
 
         # Number of pieces captured so far by each player.
         # The first element is just for padding.
         self.captured = [0, 0, 0]
 
         self.player = None      # The player whose turn it is now.
+
 
 
     def next_player(self):
@@ -138,13 +142,22 @@ class Breakthrough:
             pl[1].start(1)        # First player
             pl[2].start(2)        # Second player
 
+            self.reset()
+
             self.player = 1
             capture = 0
             move = None
+
+            move_num = 0
+
+            print("Player:", self.player, "Move num: ", move_num, "Move: ", move )
+            print(self.board)
+
             while True:
                 move = pl[self.player].next_move(move, capture)
                 ends, capture = self.do_move(move)
 
+                print("Player:", self.player, "Move num: ", move_num, "Move: ", move )
                 print(self.board)
 
                 if ends:
