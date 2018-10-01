@@ -14,6 +14,9 @@ class Breakthrough:
         self.board[:2, :] = 2
         self.board[board_size-2:, :] = 1
 
+        # store the board-size
+        self.board_size = board_size
+
         # Player 1's direction is upwards (-1) and player 2's direction is downwards (+1)
         self.direction = [0, -1, 1]
 
@@ -36,19 +39,19 @@ class Breakthrough:
         from_x, from_y = move[0]
         to_x, to_y = move[1]
 
-        # First check if the piece we are trying to move the player's piece.
+        # First check if the piece we are trying to move is the player's piece.
         if self.board[from_x, from_y] != self.player:
             raise InvalidMove("You can only move your own piece!")
 
         # First let's make sure that the change in y position is as per the rules.
-        if to_y - from_y != self.direction[self.player]:
+        if to_x - from_x != self.direction[self.player]:
             raise InvalidMove("You have to vertically move exactly one unit in the player's direction!")
 
         # Now, we need to consider the horizontal displacement and the piece in the to_pos.
         to_piece = self.board[to_x, to_y]
 
         # if there is no horizontal displacement.
-        if from_x == to_x:
+        if from_y == to_y:
             if to_piece != 0:   # the position is not empty.
                 raise IvalidMove("You can't move to an occupied slot!")
             else:
@@ -56,7 +59,7 @@ class Breakthrough:
                 return 1
 
         # if there is horizontal displacement, check that it is just one slot to the right/left.
-        if abs(from_x - to_x) > 1:
+        if abs(from_y - to_y) > 1:
             raise InvalidMove("You can't move that far!")
 
         # At this point, we are in a diagonal move. Just check if the piece is the opposite player's.
