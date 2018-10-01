@@ -7,6 +7,15 @@ import random as rnd
 class InvalidMove(Exception):
     """Raise an Invalid Move Exception"""
 
+
+# A class for keeping track of players' scores
+class PlayerScore():
+    def __init__(self, obj=None, id=None, score=0):
+        self.obj = obj          # The object representing the player.
+        self.id = id
+        self.score = score
+
+
 class Breakthrough:
     def __init__(self, board_size=8):
         self.board = np.zeros((board_size, board_size), dtype=np.uint8)
@@ -121,7 +130,7 @@ class Breakthrough:
         return sum( self.board[target_row, :] == self.player ) >= 1
 
 
-    def evaluator(self, player1, player1_id, player2, player2_id, trials=5):
+    def evaluator(self, player1, player2, trials=5):
         """Play the game using two agents. The agents are expected to be the objects of
         the Player class. Scoring: if a player returns an invalid move, or
         exceeds the time limit, his/her will get a 0 points and any of his/her
@@ -132,22 +141,16 @@ class Breakthrough:
         games = ( [True] * trials ) + ([False] * trials)
         rnd.shuffle(games)
 
-        scores = {}
-        scores[player1_id] = 0
-        scores[player2_id] = 0
-
         pl = [None, None, None]
 
         for game in games:
             if game:
                 pl[1], pl[2] = player1, player2
-                pl_ids = [None, player1_id, player2_id]
             else:
                 pl[1], pl[2] = player2, player1
-                pl_ids = [None, player2_id, player1_id]
 
-            pl[1].start(1)        # First player
-            pl[2].start(2)        # Second player
+            pl[1].obj.start(1)        # First player
+            pl[2].obj.start(2)        # Second player
 
             self.reset()
 
@@ -157,30 +160,30 @@ class Breakthrough:
 
             move_num = 0
 
-            print("Player:", self.player, "Move num: ", move_num, "Move: ", move )
+            print("Player:", pl[1].id, "Move num: ", move_num, "Move: ", move )
             print(self.board)
 
             while True:
-                move = pl[self.player].next_move(move, capture)
+                move = pl[self.player].obj.next_move(move, capture)
                 ends, capture = self.do_move(move)
 
                 move_num += 1
 
-                print("Player:", self.player, "Move num: ", move_num, "Move: ", move )
+                print("Player:", pl[self.player].id, "Move num: ", move_num, "Move: ", move )
                 print(self.board)
 
                 if ends:
                     # Let both players know that the game has ended.
-                    pl[1].finish(self.player, move)
-                    pl[2].finish(self.player, move)
-                    print(pl_ids[self.player], "wins.")
+                    pl[1].obj.finish(self.player, move)
+                    pl[2].obj.finish(self.player, move)
+                    print(pl[self.player].id, "wins.")
                     break
                 else:
                     self.player = self.next_player()
 
             # At this point, presumably we know who won. Update the scores.
-            scores[pl_ids[self.player]] += 2
-        return scores
+            pl[self.player].score += 2
+        return
 
 
 if __name__ == '__main__':
@@ -188,12 +191,12 @@ if __name__ == '__main__':
     # For the time being, assume that there are only two players and that we are given the modules of both.
     code = ast.parse(open(sys.argv[1]).read())
     eval(compile(code, '', 'exec'))
-    pl1 = Player(8)
+    pl1 = PlayerScore(Player(8), "Player 1", 0)
 
     code = ast.parse(open(sys.argv[2]).read())
     eval(compile(code, '', 'exec'))
-    pl2 = Player(8)
+    pl2 = PlayerScore(Player(8), "Player 2", 0)
 
     breaktrough = Breakthrough()
-    scores = breaktrough.evaluator(pl1, "Player 1", pl2, "Player 2", 1)
-    print("Final score:\n Player 1: {0}, Player 2: {1}".format(scores["Player 1"], scores["Player 2"]))
+    breaktrough.evaluator(pl1, pl2, 1)
+    print("Final score:\n Player 1: {0}, Player 2: {1}".format(pl1.score, pl2.score))
