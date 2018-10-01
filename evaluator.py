@@ -15,9 +15,10 @@ class Breakthrough:
         self.board[:2, :] = 2
         self.board[board_size-2:, :] = 1
 
-        # Pieces captured so far.
+        # Number of pieces captured so far.
         self.captured = [0, 0]
 
+        self.player = None      # The player whose turn it is now.
 
     def alt_player(self, player):
         # The other player.
@@ -42,18 +43,22 @@ class Breakthrough:
             raise("Invalid Move!")
 
     def is_pos_empty(self, pos):
+        """Is this board position empty?"""
         return self.board[pos] == 0
 
     def is_pos_alt_player(self, pos, player):
+        """Does this board position belong to the other player?"""
         return ( self.board[pos] != 0 ) and ( self.board[pos] != player )
 
     def is_legal_move_vert(self, player, from_pos, to_pos):
+        """Is it a legal vertical move?"""
         if player == 1:
             # Assuming player 1's side is the bottom-most row
             return (from_pos[0] == to_pos[0]) and (to_pos[1] - from_pos[1] == 1)
         return (from_pos[0] == to_pos[0]) and (from_pos[1] - to_pos[1] == 1)
 
     def is_legal_move_diag(self, player, from_pos, to_pos):
+        """Is it a legal diagonal move?"""
         # x-coordinate may change 1 unit to the left or right.
         # the y-coordinate should change one unit in the player's direction.
         if player == 1:
@@ -62,6 +67,7 @@ class Breakthrough:
         return (abs(from_pos[0] - to_pos[0]) == 1) and (from_pos[1] - to_pos[1] == 1)
 
     def do_move(self, move, player):
+        """Perform the move if it is legal."""
         move_type = self.is_legal_move(move, player)
 
         from_pos, to_pos = move
