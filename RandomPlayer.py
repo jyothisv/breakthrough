@@ -22,9 +22,9 @@ class Player:
 
         # Reset the player's board.
         self.board[:2, :] = 2
-        self.board[board_size-2:, :] = 1
+        self.board[self.board_size-2:, :] = 1
 
-        self.board[2:board_size-2, :] = 0
+        self.board[2:self.board_size-2, :] = 0
 
 
     def do_move(self, move):
@@ -52,42 +52,50 @@ class Player:
                 if self.board[i, j] == self.player:
                     # It's our piece. Try to find if any capture move is possible.
                     from_pos = (i, j)
-                    for to_pos in get_capture_pos(from_pos):
+                    print("from pos = ", from_pos, "piece = ", self.board[i, j])
+                    for to_pos in self.get_capture_pos(from_pos):
                         capture_moves.append((from_pos, to_pos))
 
                     # Now find out vertical moves.
-                    for to_pos in get_vert_pos(from_pos):
+                    for to_pos in self.get_vert_pos(from_pos):
                         vert_moves((from_pos, to_pos))
 
+        print("player = ", self.player, "capture_moves =", capture_moves, "vert_moves = ", vert_moves)
         if capture_moves:
             return rnd.choice(capture_moves)
         return rnd.choice(vert_moves)
 
 
-    def get_capture_moves(from_pos):
+    def get_capture_pos(self, from_pos):
         moves = []
         x, y = from_pos
-        to_pos1 = (x-1, y + self.direction)
-        to_pos2 = (x+1, y + self.direction)
+        to_pos1 = (x + self.direction, y - 1)
+        to_pos2 = (x + self.direction, y + 1)
 
-        if self.board[to_pos1] == self.other_player:
+        if self.within_bounds_pos( to_pos1 ) and self.board[to_pos1] == self.other_player:
             moves.append(to_pos1)
 
-        if self.board[to_pos2] == self.other_player:
+        if self.within_bounds_pos( to_pos2 ) and self.board[to_pos2] == self.other_player:
             moves.append(to_pos2)
 
         return moves
 
 
-    def get_vert_moves(from_pos):
+    def get_vert_pos(self, from_pos):
         moves = []
         x, y = from_pos
-        to_pos = (x, y + self.direction)
+        to_pos = (x + self.direction, y)
 
-        if self.board[ to_pos ] == 0: # if the target board position is empty.
+        print(from_pos, to_pos)
+
+        if self.within_bounds_pos( to_pos ) and self.board[ to_pos ] == 0: # if the target board position is empty.
             moves.append(to_pos)
         return moves
 
+
+    def within_bounds_pos(self, pos):
+        x, y = pos
+        return 0 <= x < self.board_size and 0 <= y < self.board_size
 
     def finish(self, player, move):
         """We know the player who won and the winning move."""
