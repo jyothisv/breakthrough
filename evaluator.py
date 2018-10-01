@@ -121,7 +121,7 @@ class Breakthrough:
         return sum( self.board[target_row, :] == self.player ) >= 1
 
 
-    def evaluator(self, player1, player1_name, player2, player2_name, trials=5):
+    def evaluator(self, player1, player1_id, player2, player2_id, trials=5):
         """Play the game using two agents. The agents are expected to be the objects of
         the Player class. Scoring: if a player returns an invalid move, or
         exceeds the time limit, his/her will get a 0 points and any of his/her
@@ -132,17 +132,19 @@ class Breakthrough:
         games = ( [True] * trials ) + ([False] * trials)
         rnd.shuffle(games)
 
-        scores = [0, 0, 0]
+        scores = {}
+        scores[player1_id] = 0
+        scores[player2_id] = 0
 
         pl = [None, None, None]
 
         for game in games:
             if game:
                 pl[1], pl[2] = player1, player2
-                pl_names = [None, player1_name, player2_name]
+                pl_ids = [None, player1_id, player2_id]
             else:
                 pl[1], pl[2] = player2, player1
-                pl_names = [None, player2_name, player1_name]
+                pl_ids = [None, player2_id, player1_id]
 
             pl[1].start(1)        # First player
             pl[2].start(2)        # Second player
@@ -171,13 +173,13 @@ class Breakthrough:
                     # Let both players know that the game has ended.
                     pl[1].finish(self.player, move)
                     pl[2].finish(self.player, move)
-                    print(pl_names[self.player], "wins.")
+                    print(pl_ids[self.player], "wins.")
                     break
                 else:
                     self.player = self.next_player()
 
             # At this point, presumably we know who won. Update the scores.
-            scores[self.player] += 2
+            scores[pl_ids[self.player]] += 2
         return scores
 
 
@@ -193,4 +195,5 @@ if __name__ == '__main__':
     pl2 = Player(8)
 
     breaktrough = Breakthrough()
-    breaktrough.evaluator(pl1, "Player 1", pl2, "Player 2", 1)
+    scores = breaktrough.evaluator(pl1, "Player 1", pl2, "Player 2", 1)
+    print("Final score:\n Player 1: {0}, Player 2: {1}".format(scores["Player 1"], scores["Player 2"]))
