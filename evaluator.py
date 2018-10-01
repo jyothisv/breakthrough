@@ -20,55 +20,61 @@ class Breakthrough:
 
         self.player = None      # The player whose turn it is now.
 
-    def alt_player(self, player):
-        # The other player.
-        return 3 - player
 
-    def is_legal_move(self, move, player):
+    def alt_player(self):
+        # The other player.
+        return 3 - self.player
+
+
+    def is_legal_move(self, move):
         from_pos = move[0]
         to_pos = move[1]
 
-        if self.board[from_pos] != player:
+        if self.board[from_pos] != self.player:
             raise InvalidMove("Not Player's Piece!")
 
         if self.is_pos_empty(to_pos):
-            if self.is_legal_move_vert(player, from_pos, to_pos):
+            if self.is_legal_move_vert(from_pos, to_pos):
                 return 1
             else:
                 raise InvalidMove("Invalid Move.!")
 
         else:
-            if self.is_pos_alt_player(to_pos, player) and self.is_legal_move_diag(player, from_pos, to_pos):
+            if self.is_pos_alt_player(to_pos) and self.is_legal_move_diag(from_pos, to_pos):
                 return 2
             raise("Invalid Move!")
+
 
     def is_pos_empty(self, pos):
         """Is this board position empty?"""
         return self.board[pos] == 0
 
-    def is_pos_alt_player(self, pos, player):
-        """Does this board position belong to the other player?"""
-        return ( self.board[pos] != 0 ) and ( self.board[pos] != player )
 
-    def is_legal_move_vert(self, player, from_pos, to_pos):
+    def is_pos_alt_player(self, pos):
+        """Does this board position belong to the other player?"""
+        return ( self.board[pos] != 0 ) and ( self.board[pos] != self.player )
+
+
+    def is_legal_move_vert(self, from_pos, to_pos):
         """Is it a legal vertical move?"""
-        if player == 1:
+        if self.player == 1:
             # Assuming player 1's side is the bottom-most row
             return (from_pos[0] == to_pos[0]) and (to_pos[1] - from_pos[1] == 1)
         return (from_pos[0] == to_pos[0]) and (from_pos[1] - to_pos[1] == 1)
 
-    def is_legal_move_diag(self, player, from_pos, to_pos):
+    def is_legal_move_diag(self, from_pos, to_pos):
         """Is it a legal diagonal move?"""
         # x-coordinate may change 1 unit to the left or right.
         # the y-coordinate should change one unit in the player's direction.
-        if player == 1:
+        if self.player == 1:
             return (abs(from_pos[0] - to_pos[0]) == 1) and (to_pos[1] - from_pos[1] == 1)
 
         return (abs(from_pos[0] - to_pos[0]) == 1) and (from_pos[1] - to_pos[1] == 1)
 
-    def do_move(self, move, player):
+
+    def do_move(self, move):
         """Perform the move if it is legal."""
-        move_type = self.is_legal_move(move, player)
+        move_type = self.is_legal_move(move)
 
         from_pos, to_pos = move
 
@@ -76,17 +82,18 @@ class Breakthrough:
         self.board[from_pos] = 0
 
         # Also, the to_pos would now hold the player's piece.
-        self.board[to_pos] = player
+        self.board[to_pos] = self.player
 
         capture = 0
         if move_type == 2:
             # Diagonal move
 
             # Captured player
-            capture = alt_player(player)
+            capture = alt_player(self.player)
             self.captured[capture - 1] += 1
 
         return self.game_ends(), capture
+
 
     def game_ends(self):
         """If the game has ended, return the winner's id (1 or 2).
