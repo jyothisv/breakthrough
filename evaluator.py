@@ -9,7 +9,7 @@ class InvalidMove(Exception):
 
 class Breakthrough:
     def __init__(self, board_size=8):
-        self.board = np.zeros((board_size, board_size))
+        self.board = np.zeros((board_size, board_size), dtype=np.uint8)
 
         # store the board-size
         self.board_size = board_size

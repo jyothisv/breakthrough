@@ -5,7 +5,7 @@ import random as rand
 
 class Player:
     def __init__(self, board_size):
-        self.board = np.zeros((board_size, board_size))
+        self.board = np.zeros((board_size, board_size), dtype=np.uint8)
         self.board_size = board_size
 
 
