@@ -109,14 +109,14 @@ class Breakthrough:
         return sum( self.board[target_row, :] == self.player ) >= 1
 
 
-    def evaluator(self, player1, player2, trials=5):
+    def evaluator(self, player1, player1_name, player2, player2_name, trials=5):
         """Play the game using two agents. The agents are expected to be the objects of
         the Player class. Scoring: if a player returns an invalid move, or
         exceeds the time limit, his/her will get a 0 points and any of his/her
         previous wins will be forgotten. In that case, the opponent will get 1 point for the game.
         In a normal game, the winner will get 2 points per game.
         """
-
+        # TODO: scale this function for a list of players.
         games = ( [True] * trials ) + ([False] * trials)
         rnd.shuffle(games)
 
@@ -127,8 +127,10 @@ class Breakthrough:
         for game in games:
             if game:
                 pl[1], pl[2] = player1, player2
+                pl_names = [None, player1_name, player2_name]
             else:
                 pl[1], pl[2] = player2, player1
+                pl_names = [None, player2_name, player1_name]
 
             pl[1].start(1)        # First player
             pl[2].start(2)        # Second player
@@ -146,6 +148,7 @@ class Breakthrough:
                     # Let both players know that the game has ended.
                     pl[1].finish(self.player, move)
                     pl[2].finish(self.player, move)
+                    print(pl_names[self.player], "wins.")
                     break
                 else:
                     self.player = self.next_player()
@@ -153,3 +156,18 @@ class Breakthrough:
             # At this point, presumably we know who won. Update the scores.
             scores[self.player] += 2
         return scores
+
+
+if __name__ == '__main__':
+    import sys, ast
+    # For the time being, assume that there are only two players and that we are given the modules of both.
+    code = ast.parse(open(sys.argv[1]).read())
+    eval(compile(code, '', 'exec'))
+    pl1 = Player(8)
+
+    code = ast.parse(open(sys.argv[2]).read())
+    eval(compile(code, '', 'exec'))
+    pl2 = Player(8)
+
+    breaktrough = Breakthrough()
+    breaktrough.evaluator(pl1, "Player 1", pl2, "Player 2", 1)
