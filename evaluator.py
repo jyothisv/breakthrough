@@ -11,10 +11,13 @@ class Breakthrough:
     def __init__(self, board_size=8):
         self.board = np.zeros((board_size, board_size))
 
-        print(self.board)
-
         self.board[:2, :] = 2
         self.board[board_size-2:, :] = 1
+
+        # Player 1's direction is upwards (-1) and player 2's direction is downwards (+1)
+        self.direction = [0, -1, 1]
+
+        print(self.board)
 
         # Number of pieces captured so far by each player.
         # The first element is just for padding.
@@ -29,49 +32,44 @@ class Breakthrough:
 
 
     def is_legal_move(self, move):
-        from_pos = move[0]
-        to_pos = move[1]
+        """Is this move a legal move?"""
+        from_x, from_y = move[0]
+        to_x, to_y = move[1]
 
-        if self.board[from_pos] != self.player:
-            raise InvalidMove("Not Player's Piece!")
+        # First check if the piece we are trying to move the player's piece.
+        if self.board[from_x, from_y] != self.player:
+            raise InvalidMove("You can only move your own piece!")
 
-        if self.is_pos_empty(to_pos):
-            if self.is_legal_move_vert(from_pos, to_pos):
-                return 1
+        # First let's make sure that the change in y position is as per the rules.
+        if to_y - from_y != self.direction[self.player]:
+            raise InvalidMove("You have to vertically move exactly one unit in the player's direction!")
+
+        # Now, we need to consider the horizontal displacement and the piece in the to_pos.
+        to_piece = self.board[to_x, to_y]
+
+        # if there is no horizontal displacement.
+        if from_x == to_x:
+            if to_piece != 0:   # the position is not empty.
+                raise IvalidMove("You can't move to an occupied slot!")
             else:
-                raise InvalidMove("Invalid Move.!")
+                # This is just a vertical move.
+                return 1
 
-        else:
-            if self.is_pos_next_player(to_pos) and self.is_legal_move_diag(from_pos, to_pos):
-                return 2
-            raise("Invalid Move!")
+        # if there is horizontal displacement, check that it is just one slot to the right/left.
+        if abs(from_x - to_x) > 1:
+            raise InvalidMove("You can't move that far!")
+
+        # At this point, we are in a diagonal move. Just check if the piece is the opposite player's.
+        if to_piece != self.next_player():
+            raise InvalidMove("You can only capture your opponent's piece!")
+
+        # Now we are in a capturing move.
+        return 2
 
 
     def is_pos_empty(self, pos):
         """Is this board position empty?"""
         return self.board[pos] == 0
-
-
-    def is_pos_next_player(self, pos):
-        """Does this board position belong to the other player?"""
-        return ( self.board[pos] != 0 ) and ( self.board[pos] != self.player )
-
-
-    def is_legal_move_vert(self, from_pos, to_pos):
-        """Is it a legal vertical move?"""
-        if self.player == 1:
-            # Assuming player 1's side is the bottom-most row
-            return (from_pos[0] == to_pos[0]) and (to_pos[1] - from_pos[1] == 1)
-        return (from_pos[0] == to_pos[0]) and (from_pos[1] - to_pos[1] == 1)
-
-    def is_legal_move_diag(self, from_pos, to_pos):
-        """Is it a legal diagonal move?"""
-        # x-coordinate may change 1 unit to the left or right.
-        # the y-coordinate should change one unit in the player's direction.
-        if self.player == 1:
-            return (abs(from_pos[0] - to_pos[0]) == 1) and (to_pos[1] - from_pos[1] == 1)
-
-        return (abs(from_pos[0] - to_pos[0]) == 1) and (from_pos[1] - to_pos[1] == 1)
 
 
     def do_move(self, move):
@@ -141,6 +139,9 @@ class Breakthrough:
             while True:
                 move = pl[self.player].next_move(move, capture)
                 ends, capture = self.do_move(move)
+
+                print(self.board)
+
                 if ends:
                     # Let both players know that the game has ended.
                     pl[1].finish(self.player, move)
