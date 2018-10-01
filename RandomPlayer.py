@@ -29,11 +29,12 @@ class Player:
 
     def do_move(self, move, player):
         """Do the necessary book-keeping to keep track of the board position."""
-        from_pos, to_pos = move
-        self.board[from_pos] = 0
+        if move:                # move may be None.
+            from_pos, to_pos = move
+            self.board[from_pos] = 0
 
-        # Which player's move was it?
-        self.board[to_pos] = player
+            # Which player's move was it?
+            self.board[to_pos] = player
 
 
     def next_move(self, move, capture):
@@ -46,8 +47,7 @@ class Player:
         # Both are meant to be improved.
 
         # First of all, apply the move from the previous player.
-        if move:
-            self.do_move(move, self.other_player)
+        self.do_move(move, self.other_player)
 
         capture_moves = []
         vert_moves = []
@@ -70,8 +70,11 @@ class Player:
 
         if capture_moves:
             our_move = rnd.choice(capture_moves)
-        else:
+        elif vert_moves:
             our_move = rnd.choice(vert_moves)
+        else:
+            # We don't have any moves. Return None
+            our_move = None
 
         # Before passing on the move, apply the move to our own board.
         self.do_move(our_move, self.player)

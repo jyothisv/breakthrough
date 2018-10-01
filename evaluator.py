@@ -81,6 +81,11 @@ class Breakthrough:
 
     def do_move(self, move):
         """Perform the move if it is legal."""
+        # It is possible that the move may be None
+        # It means that the current player has no move. Do nothing in that case.
+        if not move:
+            return False, False
+
         move_type = self.is_legal_move(move)
 
         from_pos, to_pos = move
@@ -156,6 +161,8 @@ class Breakthrough:
             while True:
                 move = pl[self.player].next_move(move, capture)
                 ends, capture = self.do_move(move)
+
+                move_num += 1
 
                 print("Player:", self.player, "Move num: ", move_num, "Move: ", move )
                 print(self.board)
