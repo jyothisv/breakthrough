@@ -58,7 +58,7 @@ class Player:
 
                     # Now find out vertical moves.
                     for to_pos in self.get_vert_pos(from_pos):
-                        vert_moves((from_pos, to_pos))
+                        vert_moves.append((from_pos, to_pos))
 
         print("player = ", self.player, "capture_moves =", capture_moves, "vert_moves = ", vert_moves)
         if capture_moves:
