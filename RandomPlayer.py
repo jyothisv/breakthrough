@@ -57,12 +57,14 @@ class Player:
                 if self.board[i, j] == self.player:
                     # It's our piece. Try to find if any capture move is possible.
                     from_pos = (i, j)
-                    for to_pos in self.get_capture_pos(from_pos):
-                        capture_moves.append((from_pos, to_pos))
 
-                    # Now find out vertical moves.
-                    for to_pos in self.get_vert_diag_pos(from_pos):
-                        vert_diag_moves.append((from_pos, to_pos))
+                    valid_moves = self.get_valid_pos(from_pos)
+
+                    for to_pos in valid_moves[0]:
+                        vert_diag_moves.append( (from_pos, to_pos) ) # Add the returned vert_diag_moves to the list
+
+                    for to_pos in valid_moves[1]:
+                        capture_moves.append( (from_pos, to_pos) )   # Similarly, add the returned captured moves.
 
         # print("player = ", self.player, "capture_moves =", capture_moves, "vert_moves = ", vert_moves)
 
@@ -72,35 +74,31 @@ class Player:
             our_move = rnd.choice(capture_moves)
         elif vert_diag_moves:
             our_move = rnd.choice(vert_diag_moves)
-        else:
-            # We don't have any moves. Return None
-            our_move = None
 
         # Before passing on the move, apply the move to our own board.
         self.do_move(our_move, self.player)
         return our_move
 
 
-    def get_capture_pos(self, from_pos):
-        moves = []
+    def get_valid_pos(self, from_pos):
         x, y = from_pos
-        to_pos = [ (x + self.direction, y - 1), (x + self.direction, y + 1) ] # possible moves
 
-        for pos in to_pos:
-            if self.within_bounds_pos( pos ) and self.board[pos] == self.other_player:
-                moves.append(pos)
-        return moves
+        capture_moves = []
+        vert_diag_moves = []
+
+        to_pos = (x + self.direction, y) # Possible vertical move
+
+        if self.within_bounds_pos( to_pos ) and self.board[ to_pos ] == 0: # if the target board position is empty.
+            vert_diag_moves.append( to_pos )
 
 
-    def get_vert_diag_pos(self, from_pos):
-        moves = []
-        x, y = from_pos
-        to_pos = [ (x + self.direction, y), (x + self.direction, y - 1), (x + self.direction, y + 1)] # Possible moves
-
-        for pos in to_pos:
-            if self.within_bounds_pos( pos ) and self.board[ pos ] == 0: # if the target board position is empty.
-                moves.append(pos)
-        return moves
+        for to_pos in [ (x + self.direction, y - 1), (x + self.direction, y + 1) ]: # Possible diagonal moves
+            if self.within_bounds_pos( to_pos ):
+                if self.board[ to_pos ] == 0: # if the target board position is empty.
+                    vert_diag_moves.append( to_pos )
+                elif self.board[ to_pos ] == self.other_player:
+                    capture_moves.append( to_pos )
+        return vert_diag_moves, capture_moves
 
 
     def within_bounds_pos(self, pos):
