@@ -75,12 +75,13 @@ class Breakthrough:
         if abs(from_y - to_y) > 1:
             raise InvalidMove("You can't move that far!")
 
-        # At this point, we are in a diagonal move. Just check if the piece is the opposite player's.
-        if to_piece != self.next_player():
+        # At this point, we are in a diagonal move.
+        if to_piece ==0:        # the target slot is empty.
+            return 2
+        elif to_piece != self.next_player():
             raise InvalidMove("You can only capture your opponent's piece!")
-
-        # Now we are in a capturing move.
-        return 2
+        else: # Now we are in a capturing move.
+            return 3
 
 
     def is_pos_empty(self, pos):
@@ -106,7 +107,7 @@ class Breakthrough:
         self.board[to_pos] = self.player
 
         capture = False
-        if move_type == 2:
+        if move_type == 3:
             capture = True
             # Number of pieces that self.player captures is incremented.
             self.captured[self.player] += 1
