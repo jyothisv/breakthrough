@@ -50,7 +50,7 @@ class Player:
         self.do_move(move, self.other_player)
 
         capture_moves = []
-        vert_moves = []
+        vert_diag_moves = []
 
         for i in range(self.board_size):
             for j in range(self.board_size):
@@ -61,8 +61,8 @@ class Player:
                         capture_moves.append((from_pos, to_pos))
 
                     # Now find out vertical moves.
-                    for to_pos in self.get_vert_pos(from_pos):
-                        vert_moves.append((from_pos, to_pos))
+                    for to_pos in self.get_vert_diag_pos(from_pos):
+                        vert_diag_moves.append((from_pos, to_pos))
 
         # print("player = ", self.player, "capture_moves =", capture_moves, "vert_moves = ", vert_moves)
 
@@ -70,8 +70,8 @@ class Player:
 
         if capture_moves:
             our_move = rnd.choice(capture_moves)
-        elif vert_moves:
-            our_move = rnd.choice(vert_moves)
+        elif vert_diag_moves:
+            our_move = rnd.choice(vert_diag_moves)
         else:
             # We don't have any moves. Return None
             our_move = None
@@ -84,25 +84,22 @@ class Player:
     def get_capture_pos(self, from_pos):
         moves = []
         x, y = from_pos
-        to_pos1 = (x + self.direction, y - 1)
-        to_pos2 = (x + self.direction, y + 1)
+        to_pos = [ (x + self.direction, y - 1), (x + self.direction, y + 1) ] # possible moves
 
-        if self.within_bounds_pos( to_pos1 ) and self.board[to_pos1] == self.other_player:
-            moves.append(to_pos1)
-
-        if self.within_bounds_pos( to_pos2 ) and self.board[to_pos2] == self.other_player:
-            moves.append(to_pos2)
-
+        for pos in to_pos:
+            if self.within_bounds_pos( pos ) and self.board[pos] == self.other_player:
+                moves.append(pos)
         return moves
 
 
-    def get_vert_pos(self, from_pos):
+    def get_vert_diag_pos(self, from_pos):
         moves = []
         x, y = from_pos
-        to_pos = (x + self.direction, y)
+        to_pos = [ (x + self.direction, y), (x + self.direction, y - 1), (x + self.direction, y + 1)] # Possible moves
 
-        if self.within_bounds_pos( to_pos ) and self.board[ to_pos ] == 0: # if the target board position is empty.
-            moves.append(to_pos)
+        for pos in to_pos:
+            if self.within_bounds_pos( pos ) and self.board[ pos ] == 0: # if the target board position is empty.
+                moves.append(pos)
         return moves
 
 
