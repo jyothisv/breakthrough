@@ -189,10 +189,6 @@ class Breakthrough:
                 print(self.board)
 
                 if ends:
-                    # Let both players know that the game has ended.
-                    pl[self.player].obj.finish(self.player, move, True, 2)
-                    pl[self.next_player()].obj.finish(self.player, move, True, 0)
-
                     # Update the score.
                     pl[self.player].score += 2
 
@@ -206,11 +202,6 @@ class Breakthrough:
             pl[self.next_player()].score += 1
 
             print(e)            # Print the Exception.
-
-            # Let both the players know that the game has finished.
-            pl[self.player].obj.finish(self.player, move, False, 0)
-            pl[self.next_player()].obj.finish(self.player, move, False, 1)
-
 
 
 if __name__ == '__main__':
