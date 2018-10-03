@@ -2,6 +2,7 @@
 
 import numpy as np
 import random as rnd
+import time
 
 # A class for raising invalid move exceptions
 class InvalidMove(Exception):
@@ -17,7 +18,7 @@ class PlayerScore():
 
 
 class Breakthrough:
-    def __init__(self, board_size=8):
+    def __init__(self, board_size=8, timeout=2):
         self.board = np.zeros((board_size, board_size), dtype=np.uint8)
 
         # store the board-size
@@ -25,6 +26,19 @@ class Breakthrough:
 
         # Player 1's direction is upwards (-1) and player 2's direction is downwards (+1)
         self.direction = [0, -1, 1]
+
+        self.timeout = timeout  # in seconds
+
+        self.start_time = None
+
+
+    def set_start_time(self):
+        self.start_time = time.time()
+
+
+    def check_timeout(self):
+        if time.time() - self.start_time > self.timeout:
+            raise InvalidMove("Timeout!")
 
 
     def reset(self):
@@ -141,9 +155,6 @@ class Breakthrough:
 
         pl = [None, player1, player2] # A list to make it easier to alternate between two players.
 
-        pl[1].obj.start(1)        # First player
-        pl[2].obj.start(2)        # Second player
-
         self.reset()
 
         self.player = 1
@@ -154,9 +165,22 @@ class Breakthrough:
         print("Player:", pl[1].id, "Move num: ", move_num, "Move: ", move )
         print(self.board)
 
+
         try:
+            self.set_start_time()
+            pl[self.player].obj.start(1)        # First player
+            self.check_timeout()
+
+            self.player = self.next_player() # Now we are going to the second player.
+            self.set_start_time()
+            pl[2].obj.start(2)        # Second player
+            self.check_timeout()
+
+            self.player = self.next_player() # Again going back to the first player.
             while True:
+                self.set_start_time()
                 move = pl[self.player].obj.next_move(move, capture)
+                self.check_timeout()
                 ends, capture = self.do_move(move)
 
                 move_num += 1
@@ -181,6 +205,8 @@ class Breakthrough:
             # Give 1 point to the other player.
             pl[self.next_player()].score += 1
 
+            print(e)            # Print the Exception.
+
             # Let both the players know that the game has finished.
             pl[self.player].obj.finish(self.player, move, False, 0)
             pl[self.next_player()].obj.finish(self.player, move, False, 1)
@@ -198,6 +224,6 @@ if __name__ == '__main__':
     eval(compile(code, '', 'exec'))
     pl2 = PlayerScore(Player(8), "B", 0)
 
-    breaktrough = Breakthrough()
+    breaktrough = Breakthrough(8, 2)
     breaktrough.evaluate_two(pl1, pl2)
     print("Final score:\n Player {0}: {1}, Player {2}: {3}".format(pl1.id, pl1.score, pl2.id, pl2.score))
