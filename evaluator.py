@@ -154,27 +154,37 @@ class Breakthrough:
         print("Player:", pl[1].id, "Move num: ", move_num, "Move: ", move )
         print(self.board)
 
-        while True:
-            move = pl[self.player].obj.next_move(move, capture)
-            ends, capture = self.do_move(move)
+        try:
+            while True:
+                move = pl[self.player].obj.next_move(move, capture)
+                ends, capture = self.do_move(move)
 
-            move_num += 1
+                move_num += 1
 
-            print("Player:", pl[self.player].id, "Move num: ", move_num, "Move: ", move )
-            print(self.board)
+                print("Player:", pl[self.player].id, "Move num: ", move_num, "Move: ", move )
+                print(self.board)
 
-            if ends:
-                # Let both players know that the game has ended.
-                pl[self.player].obj.finish(self.player, move, True, 2)
-                pl[self.next_player()].obj.finish(self.player, move, True, 0)
-                print(pl[self.player].id, "wins.")
-                break
-            else:
-                self.player = self.next_player()
+                if ends:
+                    # Let both players know that the game has ended.
+                    pl[self.player].obj.finish(self.player, move, True, 2)
+                    pl[self.next_player()].obj.finish(self.player, move, True, 0)
 
-        # At this point, presumably we know who won. Update the scores.
-        pl[self.player].score += 2
-        return
+                    # Update the score.
+                    pl[self.player].score += 2
+
+                    print(pl[self.player].id, "wins.")
+                    break
+                else:
+                    self.player = self.next_player()
+        except InvalidMove as e:
+            # The current player (self.player) must have made an invalid move. Penalize!
+            # Give 1 point to the other player.
+            pl[self.next_player()].score += 1
+
+            # Let both the players know that the game has finished.
+            pl[self.player].obj.finish(self.player, move, False, 0)
+            pl[self.next_player()].obj.finish(self.player, move, False, 1)
+
 
 
 if __name__ == '__main__':
