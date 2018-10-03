@@ -64,7 +64,7 @@ class Player:
                     for to_pos in self.get_vert_pos(from_pos):
                         vert_moves.append((from_pos, to_pos))
 
-        print("player = ", self.player, "capture_moves =", capture_moves, "vert_moves = ", vert_moves)
+        # print("player = ", self.player, "capture_moves =", capture_moves, "vert_moves = ", vert_moves)
 
         our_move = None
 
