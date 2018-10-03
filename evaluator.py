@@ -130,59 +130,49 @@ class Breakthrough:
         return sum( self.board[target_row, :] == self.player ) >= 1
 
 
-    def evaluator(self, player1, player2, trials=5):
+    def evaluate_two(self, player1, player2):
         """Play the game using two agents. The agents are expected to be the objects of
         the Player class. Scoring: if a player returns an invalid move, or
         exceeds the time limit, his/her will get a 0 points and any of his/her
         previous wins will be forgotten. In that case, the opponent will get 1 point for the game.
         In a normal game, the winner will get 2 points per game.
         """
-        # TODO: scale this function for a list of players.
-        games = ( [True] * trials ) + ([False] * trials)
-        rnd.shuffle(games)
 
-        pl = [None, None, None]
+        pl = [None, player1, player2] # A list to make it easier to alternate between two players.
 
-        for game in games:
-            if game:
-                pl[1], pl[2] = player1, player2
-            else:
-                pl[1], pl[2] = player2, player1
+        pl[1].obj.start(1)        # First player
+        pl[2].obj.start(2)        # Second player
 
-            pl[1].obj.start(1)        # First player
-            pl[2].obj.start(2)        # Second player
+        self.reset()
 
-            self.reset()
+        self.player = 1
+        capture = 0
+        move = None
+        move_num = 0
 
-            self.player = 1
-            capture = 0
-            move = None
+        print("Player:", pl[1].id, "Move num: ", move_num, "Move: ", move )
+        print(self.board)
 
-            move_num = 0
+        while True:
+            move = pl[self.player].obj.next_move(move, capture)
+            ends, capture = self.do_move(move)
 
-            print("Player:", pl[1].id, "Move num: ", move_num, "Move: ", move )
+            move_num += 1
+
+            print("Player:", pl[self.player].id, "Move num: ", move_num, "Move: ", move )
             print(self.board)
 
-            while True:
-                move = pl[self.player].obj.next_move(move, capture)
-                ends, capture = self.do_move(move)
+            if ends:
+                # Let both players know that the game has ended.
+                pl[1].obj.finish(self.player, move)
+                pl[2].obj.finish(self.player, move)
+                print(pl[self.player].id, "wins.")
+                break
+            else:
+                self.player = self.next_player()
 
-                move_num += 1
-
-                print("Player:", pl[self.player].id, "Move num: ", move_num, "Move: ", move )
-                print(self.board)
-
-                if ends:
-                    # Let both players know that the game has ended.
-                    pl[1].obj.finish(self.player, move)
-                    pl[2].obj.finish(self.player, move)
-                    print(pl[self.player].id, "wins.")
-                    break
-                else:
-                    self.player = self.next_player()
-
-            # At this point, presumably we know who won. Update the scores.
-            pl[self.player].score += 2
+        # At this point, presumably we know who won. Update the scores.
+        pl[self.player].score += 2
         return
 
 
@@ -191,12 +181,12 @@ if __name__ == '__main__':
     # For the time being, assume that there are only two players and that we are given the modules of both.
     code = ast.parse(open(sys.argv[1]).read())
     eval(compile(code, '', 'exec'))
-    pl1 = PlayerScore(Player(8), "Player 1", 0)
+    pl1 = PlayerScore(Player(8), "A", 0)
 
     code = ast.parse(open(sys.argv[2]).read())
     eval(compile(code, '', 'exec'))
-    pl2 = PlayerScore(Player(8), "Player 2", 0)
+    pl2 = PlayerScore(Player(8), "B", 0)
 
     breaktrough = Breakthrough()
-    breaktrough.evaluator(pl1, pl2, 1)
-    print("Final score:\n Player 1: {0}, Player 2: {1}".format(pl1.score, pl2.score))
+    breaktrough.evaluate_two(pl1, pl2)
+    print("Final score:\n Player {0}: {1}, Player {2}: {3}".format(pl1.id, pl1.score, pl2.id, pl2.score))
