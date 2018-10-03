@@ -105,6 +105,11 @@ class Player:
         x, y = pos
         return 0 <= x < self.board_size and 0 <= y < self.board_size
 
-    def finish(self, player, move):
-        """We know the player who won and the winning move."""
+    def finish(self, player, move, valid, score):
+        """We know the player who won and the winning move.
+        The parameters are:
+        1) player: the player who did the final move,
+        2) move: the final move
+        3) valid: whether the last move was valid.
+        4) score: score that the current player gets as a result."""
         pass

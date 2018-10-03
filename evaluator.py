@@ -165,8 +165,8 @@ class Breakthrough:
 
             if ends:
                 # Let both players know that the game has ended.
-                pl[1].obj.finish(self.player, move)
-                pl[2].obj.finish(self.player, move)
+                pl[self.player].obj.finish(self.player, move, True, 2)
+                pl[self.next_player()].obj.finish(self.player, move, True, 0)
                 print(pl[self.player].id, "wins.")
                 break
             else:
