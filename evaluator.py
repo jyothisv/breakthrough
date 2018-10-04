@@ -120,13 +120,11 @@ class Breakthrough:
         # Also, the to_pos would now hold the player's piece.
         self.board[to_pos] = self.player
 
-        capture = False
         if move_type == 3:
-            capture = True
             # Number of pieces that self.player captures is incremented.
             self.captured[self.player] += 1
 
-        return self.game_ends(), capture
+        return self.game_ends()
 
 
     def game_ends(self):
@@ -179,9 +177,9 @@ class Breakthrough:
             self.player = self.next_player() # Again going back to the first player.
             while True:
                 self.set_start_time()
-                move = pl[self.player].obj.next_move(move, capture)
+                move = pl[self.player].obj.next_move(move)
                 self.check_timeout()
-                ends, capture = self.do_move(move)
+                ends = self.do_move(move)
 
                 move_num += 1
 
@@ -209,11 +207,11 @@ if __name__ == '__main__':
     # For the time being, assume that there are only two players and that we are given the modules of both.
     code = ast.parse(open(sys.argv[1]).read())
     eval(compile(code, '', 'exec'))
-    pl1 = PlayerScore(Player(8), "A", 0)
+    pl1 = PlayerScore(Player(), "A", 0)
 
     code = ast.parse(open(sys.argv[2]).read())
     eval(compile(code, '', 'exec'))
-    pl2 = PlayerScore(Player(8), "B", 0)
+    pl2 = PlayerScore(Player(), "B", 0)
 
     breaktrough = Breakthrough(8, 2)
     breaktrough.evaluate_two(pl1, pl2)

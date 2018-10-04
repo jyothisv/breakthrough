@@ -4,9 +4,9 @@ import numpy as np
 import random as rand
 
 class Player:
-    def __init__(self, board_size):
-        self.board = np.zeros((board_size, board_size), dtype=np.uint8)
-        self.board_size = board_size
+    def __init__(self):
+        self.board = np.zeros((8, 8), dtype=np.uint8)
+        self.board_size = 8
 
 
     def start(self, player):
@@ -37,7 +37,7 @@ class Player:
             self.board[to_pos] = player
 
 
-    def next_move(self, move, capture):
+    def next_move(self, move):
         """Calculate the next move."""
         # As the random player, we just make one list of capture moves and another list of
         # vertical moves. If a capture is possible, we randomly pick one. If no capture
