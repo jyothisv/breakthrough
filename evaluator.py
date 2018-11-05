@@ -201,6 +201,11 @@ class Breakthrough:
 
             print(e)            # Print the Exception.
 
+        except:
+            # Some other error. Again, penalize the current player.
+            print("Runtime error!")
+            pl[self.next_player()].score += 1
+
 
 if __name__ == '__main__':
     import sys, ast
