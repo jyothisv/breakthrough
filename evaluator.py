@@ -106,9 +106,9 @@ class Breakthrough:
     def do_move(self, move):
         """Perform the move if it is legal."""
         # It is possible that the move may be None
-        # It means that the current player has no move. Do nothing in that case.
+        # It should not happen because in Breakthrough, draw is not possible.
         if not move:
-            return False, False
+            raise InvalidMove("Move cannot be None.")
 
         move_type = self.is_legal_move(move)
 
