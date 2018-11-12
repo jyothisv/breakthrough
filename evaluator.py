@@ -3,6 +3,7 @@
 import numpy as np
 import random as rnd
 import time
+from itertools import permutations
 
 # A class for raising invalid move exceptions
 class InvalidMove(Exception):
@@ -207,17 +208,44 @@ class Breakthrough:
             pl[self.next_player()].score += 1
 
 
+
+    def evaluate(self, players):
+        """Play players against each other. Each player will play 10 games against each
+        other player. 5 games will be as the first player and other games will be the
+        second player."""
+
+        player_pairs = list( permutations(players, 2) ) * 5 # All possible pairs, with 5 copies each
+        rnd.shuffle(player_pairs)                           # randomly shuffle the pairs
+
+        for pl1, pl2 in player_pairs:
+            print("Game Starts: Group {0} vs Group {1}".format(pl1.id, pl2.id))
+            self.evaluate_two(pl1, pl2)
+            print("Game Ends!")
+
+
+
+
 if __name__ == '__main__':
     import sys, ast
-    # For the time being, assume that there are only two players and that we are given the modules of both.
-    code = ast.parse(open(sys.argv[1]).read())
-    eval(compile(code, '', 'exec'))
-    pl1 = PlayerScore(Player(), "A", 0)
 
-    code = ast.parse(open(sys.argv[2]).read())
-    eval(compile(code, '', 'exec'))
-    pl2 = PlayerScore(Player(), "B", 0)
+    # Generate PlayerScore objects for each player
+    players = []
+
+    for fname in sys.argv[1:]:
+        # print("fname=",fname)
+        code = ast.parse(open(fname).read())
+        eval(compile(code, '', 'exec'))
+        group_name = fname.split("/")[-1].split(".")[0] # TODO: Do away with this hack.
+        players.append( PlayerScore(Player(), group_name, 0) )
+
+    # code = ast.parse(open(sys.argv[2]).read())
+    # eval(compile(code, '', 'exec'))
+    # pl2 = PlayerScore(Player(), "B", 0)
 
     breaktrough = Breakthrough(8, 2)
-    breaktrough.evaluate_two(pl1, pl2)
-    print("Final score:\n Player {0}: {1}, Player {2}: {3}".format(pl1.id, pl1.score, pl2.id, pl2.score))
+    breaktrough.evaluate(players)
+    # print("Final score:\n Player {0}: {1}, Player {2}: {3}".format(pl1.id, pl1.score, pl2.id, pl2.score))
+
+    print("Final scores:")
+    for pl in players:
+        print("Group {0}: {1}".format(pl.id, pl.score))
